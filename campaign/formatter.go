@@ -11,6 +11,33 @@ type CampaignFormatter struct {
 	Slug             string `json:"slug"`
 }
 
+type CampaignDetailFormatter struct {
+	ID               int                      `json:"id"`
+	Name             string                   `json:"name"`
+	UserID           int                      `json:"user_id"`
+	ShortDescription string                   `json:"short_description"`
+	Description      string                   `json:"description"`
+	GoalAmount       int                      `json:"goal_amount"`
+	CurrentAmount    int                      `json:"current_amount"`
+	Slug             string                   `json:"slug"`
+	Perks            []string                 `json:"perks"`
+	User             UserFormatter            `json:"user"`
+	Images           []CampaignImageFormatter `json:"campaign_images"`
+}
+
+type UserFormatter struct {
+	Name     string `json:"name"`
+	ImageURL string `json:"image_url"`
+}
+
+type CampaignImageFormatter struct {
+	ImageURL  string `json:"url"`
+	IsPrimary bool   `json:"is_primary"`
+}
+
+/*
+Formatter Array of Campaign
+*/
 func FormatCampaign(campaign Campaign) CampaignFormatter {
 	formattedCampaign := CampaignFormatter{}
 
@@ -39,4 +66,45 @@ func FormatCampaigns(campaigns []Campaign) []CampaignFormatter {
 	}
 
 	return formattedCampaigns
+}
+
+/*
+	Formatter Campaign Detail
+*/
+
+func FormatDetailCampaign(campaign Campaign) CampaignDetailFormatter {
+	formattedDetailCampaign := CampaignDetailFormatter{}
+
+	formattedDetailCampaign.ID = campaign.ID
+	formattedDetailCampaign.UserID = campaign.UserID
+	formattedDetailCampaign.Name = campaign.Name
+	formattedDetailCampaign.ShortDescription = campaign.ShortDescription
+	formattedDetailCampaign.GoalAmount = campaign.GoalAmount
+	formattedDetailCampaign.CurrentAmount = campaign.CurrentAmount
+	formattedDetailCampaign.Slug = campaign.Slug
+
+	// mapping user
+	user := campaign.User
+	userCampaign := UserFormatter{}
+
+	userCampaign.Name = user.Name
+	userCampaign.ImageURL = user.AvatarFileName
+
+	formattedDetailCampaign.User = userCampaign
+
+	// mapping images
+	images := campaign.CampaignImages
+	campaignImages := []CampaignImageFormatter{}
+
+	for _, image := range images {
+		formattedImage := CampaignImageFormatter{}
+		formattedImage.ImageURL = image.FileName
+		formattedImage.IsPrimary = image.IsPrimary
+
+		campaignImages = append(campaignImages, formattedImage)
+	}
+
+	formattedDetailCampaign.Images = campaignImages
+
+	return formattedDetailCampaign
 }
